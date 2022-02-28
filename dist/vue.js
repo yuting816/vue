@@ -1,6 +1,6 @@
 /*!
  * Vue.js v2.6.14
- * (c) 2014-2021 Evan You
+ * (c) 2014-2022 Evan You
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -46,7 +46,7 @@
 
   /**
    * Quick object check - this is primarily used to tell
-   * Objects from primitive values when we know the value
+   * objects from primitive values when we know the value
    * is a JSON-compliant type.
    */
   function isObject (obj) {
@@ -986,6 +986,10 @@
    * returns the new observer if successfully observed,
    * or the existing observer if the value already has one.
    */
+
+  /* 响应式处理的真正入口
+  为对象创建观察者实例，如果对象已经被观察过，则返回已有的观察者实例，否则创建新的观察者实例 */
+
   function observe (value, asRootData) {
     if (!isObject(value) || value instanceof VNode) {
       return
@@ -7620,7 +7624,9 @@
     }
     var on = vnode.data.on || {};
     var oldOn = oldVnode.data.on || {};
-    target$1 = vnode.elm;
+    // vnode is empty when removing all listeners,
+    // and use old vnode dom element
+    target$1 = vnode.elm || oldVnode.elm;
     normalizeEvents(on);
     updateListeners(on, oldOn, add$1, remove$2, createOnceHandler$1, vnode.context);
     target$1 = undefined;
@@ -7628,7 +7634,8 @@
 
   var events = {
     create: updateDOMListeners,
-    update: updateDOMListeners
+    update: updateDOMListeners,
+    destroy: function (vnode) { return updateDOMListeners(vnode, emptyNode); }
   };
 
   /*  */
@@ -9180,7 +9187,7 @@
       }
     }
     if (staticClass) {
-      el.staticClass = JSON.stringify(staticClass);
+      el.staticClass = JSON.stringify(staticClass.replace(/\s+/g, ' ').trim());
     }
     var classBinding = getBindingAttr(el, 'class', false /* getStatic */);
     if (classBinding) {
@@ -12012,3 +12019,4 @@
   return Vue;
 
 }));
+//# sourceMappingURL=vue.js.map
